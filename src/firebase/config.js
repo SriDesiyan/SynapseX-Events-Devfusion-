@@ -1,13 +1,13 @@
-// Firebase config is read from Vite env vars for security.
-// Create a .env.local (not committed) with the VITE_FIREBASE_* values.
+// Firebase config (hardcoded as requested).
+// Note: committing API keys is generally not recommended; consider using .env.local for local secrets.
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyCUaDsDRVKAB0zpVILfV_Dl8zY0iI6cdxs",
+  authDomain: "synapsex-events.firebaseapp.com",
+  projectId: "synapsex-events",
+  storageBucket: "synapsex-events.firebasestorage.app",
+  messagingSenderId: "607386417857",
+  appId: "1:607386417857:web:849e9e8f9acb314eb87240",
+  measurementId: "G-RYV01R7CP6",
 };
 
 export default firebaseConfig;
