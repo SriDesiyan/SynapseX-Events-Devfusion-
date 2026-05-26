@@ -8,6 +8,8 @@ import Organizer from "./pages/Organizer";
 import EventDetails from "./pages/EventDetails";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Onboarding from "./pages/Onboarding";
+import JourneyResults from "./pages/JourneyResults";
 
 export default function App() {
   return (
@@ -18,6 +20,9 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/explore" element={<Explore />} />
+          <Route path="/journey" element={<Onboarding />} />
+          <Route path="/ai-journey" element={<Onboarding />} />
+          <Route path="/journey/results" element={<JourneyResults />} />
           <Route path="/events/:id" element={<EventDetails />} />
           <Route
             path="/dashboard"

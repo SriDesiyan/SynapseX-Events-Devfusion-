@@ -9,6 +9,8 @@ export default function Register() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("attendee");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -24,11 +26,13 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await registerWithEmail(email, password);
+      await registerWithEmail(name, role, email, password);
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError("Unable to create your account. Please try again.");
       console.error(err);
+      // Prefer specific Firebase error messages when available
+      const msg = err?.code ? `${err.code.replace("auth/", "").replace(/-/g, " ")}` : "Unable to create your account. Please try again.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -47,6 +51,18 @@ export default function Register() {
           }
         >
           <form className="space-y-5" onSubmit={handleSubmit}>
+            <label className="block text-sm font-medium text-slate-300">
+              Name
+              <input
+                className="mt-2 w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white shadow-sm outline-none transition focus:border-cyan-300"
+                type="text"
+                placeholder="Your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </label>
+
             <label className="block text-sm font-medium text-slate-300">
               Email
               <input
@@ -70,6 +86,14 @@ export default function Register() {
                 minLength={6}
                 required
               />
+            </label>
+
+            <label className="block text-sm font-medium text-slate-300">
+              Role
+              <select value={role} onChange={(e) => setRole(e.target.value)} className="mt-2 w-full rounded-full bg-white/3 px-4 py-2">
+                <option value="attendee">Attendee</option>
+                <option value="organizer">Organizer</option>
+              </select>
             </label>
 
             {error && <p className="text-sm text-rose-400">{error}</p>}

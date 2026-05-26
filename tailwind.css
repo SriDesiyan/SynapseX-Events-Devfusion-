@@ -1,0 +1,32 @@
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+}
+
+@layer components {
+  .glass {
+    background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(8px) saturate(1.2);
+  }
+
+  .neon-glow {
+    box-shadow: 0 0 30px rgba(34,211,238,0.08), inset 0 0 20px rgba(168,85,247,0.02);
+  }
+
+  .btn-neon {
+    @apply inline-flex items-center justify-center rounded-full px-6 py-3 font-semibold transition-transform;
+  }
+
+  @keyframes scan {
+    0% { transform: translateX(-100%);} 
+    100% { transform: translateX(100%);} 
+  }
+
+  .animate-scan {
+    animation: scan 1.8s linear infinite;
+  }
+}
+
+@layer utilities {
+  .shadow-glow { box-shadow: 0 8px 40px rgba(139,92,246,0.08); }
+}

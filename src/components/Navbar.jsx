@@ -1,19 +1,22 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 const navLinks = [
   { label: "Explore", to: "/explore" },
+  { label: "Journey", to: "/journey" },
   { label: "Organizer", to: "/organizer" },
   { label: "Dashboard", to: "/dashboard" },
 ];
 
 export default function Navbar() {
+  const [open, setOpen] = useState(false);
   return (
     <motion.nav
       initial={{ y: -40, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.65, ease: "easeOut" }}
-      className="fixed inset-x-0 top-6 z-20 mx-auto flex max-w-7xl items-center justify-between rounded-[32px] border border-white/10 bg-white/5 px-6 py-4 shadow-glow backdrop-blur-2xl"
+      className="fixed inset-x-0 top-6 z-20 mx-auto flex max-w-7xl items-center justify-between rounded-[32px] border border-white/10 bg-white/5 px-4 py-3 shadow-glow backdrop-blur-2xl glass-muted"
     >
       <Link to="/" className="flex items-center gap-3 text-white">
         <span className="flex h-11 w-11 items-center justify-center rounded-3xl bg-gradient-to-br from-cyan-400/20 to-violet-500/20 text-lg font-semibold text-cyan-200 ring-1 ring-cyan-300/20">
@@ -27,10 +30,35 @@ export default function Navbar() {
 
       <div className="hidden items-center gap-8 md:flex">
         {navLinks.map((link) => (
-          <Link key={link.label} to={link.to} className="text-sm text-slate-300 transition hover:text-cyan-200">
+          <Link key={link.label} to={link.to} className="text-sm text-slate-300 transition hover:text-cyan-200 neon-link">
             {link.label}
           </Link>
         ))}
+      </div>
+
+      {/* mobile menu */}
+      <div className="md:hidden">
+        <button
+          aria-label="menu"
+          onClick={() => setOpen((v) => !v)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/3 text-white/90 focus-ring"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </button>
+        {open && (
+          <div className="absolute right-4 top-20 z-40 w-44 rounded-xl border border-white/8 bg-white/3 p-3 backdrop-blur-lg">
+            {navLinks.map((link) => (
+              <Link key={link.label} to={link.to} className="block px-3 py-2 text-sm text-slate-200" onClick={() => setOpen(false)}>
+                {link.label}
+              </Link>
+            ))}
+            <Link to="/login" className="mt-2 block rounded-md bg-cyan-400/10 px-3 py-2 text-sm text-cyan-100" onClick={() => setOpen(false)}>
+              Sign in
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-3">

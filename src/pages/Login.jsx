@@ -27,8 +27,9 @@ export default function Login() {
       await loginWithEmail(email, password);
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError("Unable to sign in. Please check your credentials.");
       console.error(err);
+      const msg = err?.code ? `${err.code.replace("auth/", "").replace(/-/g, " ")}` : "Unable to sign in. Please check your credentials.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
