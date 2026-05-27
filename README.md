@@ -245,7 +245,7 @@ Live Website:
 ## GitHub Repository
 
 Repository Link:
-[Add GitHub link here]
+[https://github.com/SriDesiyan/SynapseX-Events-Devfusion-]
 
 ---
 
@@ -260,9 +260,6 @@ Repository Link:
 **Role:** Backend Developer
 
 ### TEAM_CIT_CHENNAI
-
-**Role:** [Role Here]
-
 ---
 
 ## Known Bugs / Limitations
