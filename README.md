@@ -255,6 +255,10 @@ Repository Link:
 
 **Role:** Full Stack Development, UI/UX Design, AI Recommendation Logic, Project Architecture
 
+### Vignesh V
+
+**Role:** Backend Developer
+
 ### TEAM_CIT_CHENNAI
 
 **Role:** [Role Here]
