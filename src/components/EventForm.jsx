@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { createEvent, updateEvent } from "../firebase/events";
+import { useState, useEffect } from "react";
+import { createEvent, updateEvent, getEventById } from "../firebase/events";
 import { uploadEventImage } from "../firebase/storage";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -12,7 +12,7 @@ const categories = [
   "Networking",
 ];
 
-export default function EventForm() {
+export default function EventForm({ editingEventId, onEditComplete }) {
   const { currentUser } = useAuth();
   const [form, setForm] = useState({
     title: "",
@@ -36,6 +36,25 @@ export default function EventForm() {
     const file = event.target.files[0];
     setImageFile(file ?? null);
   }
+
+  useEffect(() => {
+    let mounted = true;
+    if (!editingEventId) return;
+    getEventById(editingEventId)
+      .then((ev) => {
+        if (!mounted || !ev) return;
+        setForm({
+          title: ev.title || "",
+          category: ev.category || "Hackathon",
+          date: ev.date || "",
+          venue: ev.venue || "",
+          price: ev.price ? String(ev.price) : "",
+          description: ev.description || "",
+        });
+      })
+      .catch((err) => console.error(err));
+    return () => (mounted = false);
+  }, [editingEventId]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -67,7 +86,8 @@ export default function EventForm() {
       return;
     }
 
-    if (!imageFile) {
+    // When editing, allow keeping existing image if no new file selected
+    if (!imageFile && !editingEventId) {
       setError("Please upload an event image.");
       return;
     }
@@ -75,36 +95,56 @@ export default function EventForm() {
     setLoading(true);
 
     try {
-      const eventRef = await createEvent({
-        title: form.title.trim(),
-        category: form.category,
-        date: form.date,
-        venue: form.venue.trim(),
-        description: form.description.trim(),
-        price: Number(form.price),
-        organizerId: currentUser?.uid,
-        organizerEmail: currentUser?.email,
-        imageUrl: "",
-        status: "draft",
-      });
+      if (editingEventId) {
+        // Update existing event
+        await updateEvent(editingEventId, {
+          title: form.title.trim(),
+          category: form.category,
+          date: form.date,
+          venue: form.venue.trim(),
+          description: form.description.trim(),
+          price: Number(form.price),
+        });
 
-      const imageUrl = await uploadEventImage(imageFile, eventRef.id);
-      await updateEvent(eventRef.id, {
-        imageUrl,
-        status: "live",
-      });
+        if (imageFile) {
+          const imageUrl = await uploadEventImage(imageFile, editingEventId);
+          await updateEvent(editingEventId, { imageUrl });
+        }
 
-      setSuccess("Event created successfully. It will appear in the dashboard shortly.");
-      setForm({
-        title: "",
-        category: "Hackathon",
-        date: "",
-        venue: "",
-        price: "",
-        description: "",
-      });
-      setImageFile(null);
-      event.target.reset();
+        setSuccess("Event updated successfully.");
+        if (onEditComplete) onEditComplete();
+      } else {
+        const eventRef = await createEvent({
+          title: form.title.trim(),
+          category: form.category,
+          date: form.date,
+          venue: form.venue.trim(),
+          description: form.description.trim(),
+          price: Number(form.price),
+          organizerId: currentUser?.uid,
+          organizerEmail: currentUser?.email,
+          imageUrl: "",
+          status: "draft",
+        });
+
+        const imageUrl = await uploadEventImage(imageFile, eventRef.id);
+        await updateEvent(eventRef.id, {
+          imageUrl,
+          status: "live",
+        });
+
+        setSuccess("Event created successfully. It will appear in the dashboard shortly.");
+        setForm({
+          title: "",
+          category: "Hackathon",
+          date: "",
+          venue: "",
+          price: "",
+          description: "",
+        });
+        setImageFile(null);
+        event.target.reset();
+      }
     } catch (err) {
       console.error(err);
       setError("Unable to save the event. Please try again.");
@@ -116,7 +156,7 @@ export default function EventForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-glow backdrop-blur-xl">
       <div className="space-y-2">
-        <h2 className="text-3xl font-semibold text-white">Create a new event</h2>
+        <h2 className="text-3xl font-semibold text-white">{editingEventId ? "Edit event" : "Create a new event"}</h2>
         <p className="text-sm text-slate-400">Add event details, set the ticket price, and upload an image for the listing.</p>
       </div>
 
@@ -225,7 +265,7 @@ export default function EventForm() {
         disabled={loading}
         className="w-full rounded-3xl bg-gradient-to-r from-cyan-400 to-violet-500 px-6 py-4 text-sm font-semibold text-slate-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {loading ? "Saving event..." : "Create event"}
+        {loading ? (editingEventId ? "Updating..." : "Saving event...") : (editingEventId ? "Update event" : "Create event")}
       </button>
     </form>
   );

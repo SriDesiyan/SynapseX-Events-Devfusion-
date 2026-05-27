@@ -1,6 +1,15 @@
 import EventForm from "../components/EventForm";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 export default function Organizer() {
+  const [search] = useSearchParams();
+  const navigate = useNavigate();
+  const editId = search.get("edit");
+
+  function handleEditComplete() {
+    navigate("/dashboard");
+  }
+
   return (
     <main className="min-h-screen bg-[#050816] px-6 py-14 text-slate-100">
       <div className="mx-auto max-w-5xl space-y-8">
@@ -14,7 +23,7 @@ export default function Organizer() {
           </div>
         </div>
 
-        <EventForm />
+        <EventForm editingEventId={editId} onEditComplete={handleEditComplete} />
       </div>
     </main>
   );

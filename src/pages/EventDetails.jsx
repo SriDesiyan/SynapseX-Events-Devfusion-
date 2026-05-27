@@ -1,8 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getEventById, deleteEvent } from "../firebase/events";
-import { createBooking, checkDuplicateBooking } from "../firebase/bookings";
+import { createBooking, checkDuplicateBooking, updateBooking } from "../firebase/bookings";
 import { useAuth } from "../contexts/AuthContext";
+import { createRazorpayOrder, loadRazorpayScript, openRazorpayCheckout, verifyPayment } from "../firebase/payments";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -49,9 +50,59 @@ export default function EventDetails() {
     }
     setBookingLoading(true);
     try {
-      await createBooking(currentUser.uid, event.id);
-      setIsBooked(true);
-      alert("Ticket booked successfully!");
+      // For free events, create booking immediately
+      if (!event.price || Number(event.price) === 0) {
+        await createBooking(currentUser.uid, event.id, { paymentStatus: "completed" });
+        setIsBooked(true);
+        alert("Ticket booked successfully!");
+        return;
+      }
+
+      // For paid events, create pending booking then initiate Razorpay payment
+      const bookingRes = await createBooking(currentUser.uid, event.id, { paymentStatus: "pending" });
+      const bookingId = bookingRes.id;
+
+      // Load Razorpay script
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error("Failed to load Razorpay. Please check your internet connection.");
+      }
+
+      // Create order on server
+      const amount = Math.round(Number(event.price) * 100); // Convert to paise
+      const orderData = await createRazorpayOrder(event.id, currentUser.uid, amount);
+
+      // Open Razorpay checkout
+      await new Promise((resolve, reject) => {
+        openRazorpayCheckout(
+          orderData,
+          currentUser.email,
+          currentUser.displayName || currentUser.email,
+          async (paymentResponse) => {
+            try {
+              // Verify payment on server
+              await verifyPayment({
+                razorpay_order_id: paymentResponse.razorpay_order_id,
+                razorpay_payment_id: paymentResponse.razorpay_payment_id,
+                razorpay_signature: paymentResponse.razorpay_signature,
+                eventId: event.id,
+                userId: currentUser.uid,
+              });
+              // Update booking locally to reflect server change
+              await updateBooking(bookingId, { paymentStatus: "completed" });
+              setIsBooked(true);
+              alert("Payment successful! Ticket booked.");
+              resolve();
+            } catch (verifyErr) {
+              console.error("Verification error:", verifyErr);
+              reject(verifyErr);
+            }
+          },
+          (paymentError) => {
+            reject(paymentError);
+          }
+        );
+      });
     } catch (err) {
       console.error(err);
       alert(err.message || "Unable to book ticket.");
