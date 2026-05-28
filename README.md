@@ -238,7 +238,7 @@ npm run dev
 ## Live Deployment
 
 Live Website:
-[Add deployed link here]
+https://synapse-x-events-devfusion.vercel.app/
 
 ---
 
@@ -258,6 +258,14 @@ Repository Link:
 ### Vignesh V
 
 **Role:** Backend Developer
+
+### Sheik Dharwish S
+
+**Role:** AI & ML
+
+### Syed Abdul Kareem K
+
+**Role:** Research & Developement
 
 ### TEAM_CIT_CHENNAI
 ---
